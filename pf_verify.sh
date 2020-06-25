@@ -6,9 +6,15 @@
 #   sh pf_verify.sh [checksum_filename]
 #   without a filename, a checksum file will be generated for the running system
 
-if [ -e "$1" ]; then
-  shasum -c "$1" | grep -v ': OK$'
-  exit $?
+if [ -n "$1" ]; then
+  if [ -e "$1" ]; then
+    shasum -c "$1" | grep -v ': OK$'
+    [ $? -eq 0 ] || echo "all files passed integrity check"
+    exit
+  else
+    echo "$1 not found"
+    exit 1
+  fi
 fi
 
 outfile=$HOME/checksums_$HOST
@@ -20,7 +26,9 @@ rm "$workfile" 2>/dev/null
 echo "this will take a few seconds..."
 pkg-static info pfSense-base >$pkginfo 2>/dev/null
 echo "# generated on $(date)" >$outfile
-echo "# pfSense $(awk -F': ' '/Version/ { print $2 }' $pkginfo)" >>$outfile
+model=$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)
+ver=$(awk -F': ' '/Version/ { print $2 }' $pkginfo)
+echo "# pfSense $ver [$model]" >>$outfile
 echo "# arch: $(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-version)]" >>$outfile
 
 # "special" dirs
