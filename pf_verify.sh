@@ -17,7 +17,7 @@ if [ -n "$1" ]; then
   fi
 fi
 
-outfile=$HOME/checksums_$HOST
+outfile=$HOME/checksums_$HOST.sha256
 workfile=pf_verify_tmp
 pkginfo=pkginfo_tmp
 cd /tmp || exit 1
@@ -35,7 +35,7 @@ echo "# arch: $(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-ve
 echo "/etc/inc"
 find /etc/inc -type f -name "*.inc" -exec shasum -a256 {} + >$workfile 2>/dev/null
 echo "/boot"
-find /boot -type f ! \( -name "*.conf" -or -name "*.cache" -or -name "*.hints" \) -exec shasum -a256 {} + >>$workfile 2>/dev/null
+find /boot -type f ! \( -name "*.conf" -or -name "*.cache" -or -name "*.hints" -or -path "*/kernel.old/*" \) -exec shasum -a256 {} + >>$workfile 2>/dev/null
 echo "/usr/local/www"
 find /usr/local/www -type f ! -name "*.orig" -exec shasum -a256 {} + >>$workfile 2>/dev/null
 
@@ -58,6 +58,21 @@ done <<EOD
 /usr/share/firmware
 /usr/share/keys/pkg
 EOD
+
+# omits
+while read -r MATCH; do
+  sed -i.bak -E "\|$MATCH|d" $workfile
+done <<EOS
+/usr/local/www/csrf/csrf-secret.php
+/usr/local/www/packages/
+/usr/local/lib/python[0-9.]+/
+/usr/local/lib/perl5/
+/usr/lib/debug/
+/boot/menu.rc.sample
+/usr/local/bin/speedtest
+/usr/local/bin/speedtest-cli
+/etc/inc/priv/cron.priv.inc
+EOS
 
 sort -k2 $workfile >>$outfile
 rm $workfile $pkginfo 2>/dev/null
