@@ -17,7 +17,8 @@ if [ -n "$1" ]; then
   fi
 fi
 
-outfile=$HOME/checksums_$HOST.sha256
+ts=$(date '+%Y%m%d_%H%M%S')
+outfile=$HOME/pfv_${HOST}_${ts}.sha256
 workfile=pf_verify_tmp
 pkginfo=pkginfo_tmp
 cd /tmp || exit 1
@@ -72,6 +73,7 @@ done <<EOS
 /usr/local/bin/speedtest
 /usr/local/bin/speedtest-cli
 /etc/inc/priv/cron.priv.inc
+/usr/local/sbin/iftop
 EOS
 
 sort -k2 $workfile >>$outfile
