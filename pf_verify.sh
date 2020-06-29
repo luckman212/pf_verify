@@ -22,12 +22,13 @@ outfile=$HOME/pfv_${HOST}_${ts}.sha256
 workfile=pf_verify_tmp
 pkginfo=pkginfo_tmp
 cd /tmp || exit 1
-rm "$workfile" 2>/dev/null
+rm $workfile $outfile $pkginfo 2>/dev/null
 
 echo "this will take a few seconds..."
 pkg-static info pfSense-base >$pkginfo 2>/dev/null
-model=$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)
-ver=$(awk -F': ' '/Version/ { print $2 }' $pkginfo)
+model="$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)"
+ver="$(awk -F': ' '/Version/ { print $2 }' $pkginfo)"
+arch="$(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-version)]"
 
 cat <<EOF >>$outfile
 # pf_verify checksum file
