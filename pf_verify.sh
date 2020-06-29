@@ -26,12 +26,17 @@ rm "$workfile" 2>/dev/null
 
 echo "this will take a few seconds..."
 pkg-static info pfSense-base >$pkginfo 2>/dev/null
-echo "# pf_verify checksums for ${HOST}" >$outfile
-echo "# generated on $(date)" >>$outfile
 model=$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)
 ver=$(awk -F': ' '/Version/ { print $2 }' $pkginfo)
-echo "# pfSense $ver [$model]" >>$outfile
-echo "# arch: $(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-version)]" >>$outfile
+
+cat <<EOF >>$outfile
+# pf_verify checksum file
+# hostname:      ${HOST}
+# generated on:  $(date)
+# version:       $ver [$model]
+# architecture:  $arch
+
+EOF
 
 # "special" dirs
 echo "/etc/inc"
