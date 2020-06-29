@@ -26,7 +26,8 @@ rm "$workfile" 2>/dev/null
 
 echo "this will take a few seconds..."
 pkg-static info pfSense-base >$pkginfo 2>/dev/null
-echo "# generated on $(date)" >$outfile
+echo "# pf_verify checksums for ${HOST}" >$outfile
+echo "# generated on $(date)" >>$outfile
 model=$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)
 ver=$(awk -F': ' '/Version/ { print $2 }' $pkginfo)
 echo "# pfSense $ver [$model]" >>$outfile
@@ -64,16 +65,16 @@ EOD
 while read -r MATCH; do
   sed -i.bak -E "\|$MATCH|d" $workfile
 done <<EOS
-/usr/local/www/csrf/csrf-secret.php
-/usr/local/www/packages/
-/usr/local/lib/python[0-9.]+/
-/usr/local/lib/perl5/
-/usr/lib/debug/
 /boot/menu.rc.sample
+/etc/inc/priv/cron.priv.inc
+/usr/lib/debug/
 /usr/local/bin/speedtest
 /usr/local/bin/speedtest-cli
-/etc/inc/priv/cron.priv.inc
+/usr/local/lib/perl5/
+/usr/local/lib/python[0-9.]+/
 /usr/local/sbin/iftop
+/usr/local/www/csrf/csrf-secret.php
+/usr/local/www/packages/
 EOS
 
 sort -k2 $workfile >>$outfile
