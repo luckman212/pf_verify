@@ -23,9 +23,9 @@ arch="$(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-version)]"
 
 if [ -n "$1" ]; then
   if [ -e "$1" ]; then
-    file_ver=$(awk '/^# version:/ { print $3 }' "$1")
-    file_hw=$(awk '/^# hardware:/ { print $3 }' "$1")
-    file_arch=$(awk '/^# architecture:/ { print $3 }' "$1")
+    file_ver=$(awk 'BEGIN{FS=": "} /^# version:/{gsub(/^[ ]+|[ ]+$/,"",$2); print $2}' "$1")
+    file_hw=$(awk 'BEGIN{FS=": "} /^# hardware:/{gsub(/^[ ]+|[ ]+$/,"",$2); print $2}' "$1")
+    file_arch=$(awk 'BEGIN{FS=": "} /^# architecture:/{gsub(/^[ ]+|[ ]+$/,"",$2); print $2}' "$1")
     if [ "$file_ver" != "$ver" ]; then
       echo "checksum file was generated on a different pfSense version"
       exit 1
