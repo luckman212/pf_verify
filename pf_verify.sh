@@ -8,9 +8,8 @@
 
 ts=$(date '+%Y%m%d_%H%M%S')
 outfile=$HOME/pfv_${HOST}_${ts}.sha256
-workfile=pf_verify_tmp
-pkginfo=pkginfo_tmp
-cd /tmp || exit 1
+workfile=/tmp/pf_verify_tmp
+pkginfo=/tmp/pkginfo_tmp
 rm $workfile $outfile $pkginfo 2>/dev/null
 pkg-static info pfSense-base >$pkginfo 2>/dev/null
 if [ ! -e "$pkginfo" ]; then
