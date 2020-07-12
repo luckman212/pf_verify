@@ -12,6 +12,11 @@ workfile=pf_verify_tmp
 pkginfo=pkginfo_tmp
 cd /tmp || exit 1
 rm $workfile $outfile $pkginfo 2>/dev/null
+pkg-static info pfSense-base >$pkginfo 2>/dev/null
+if [ ! -e "$pkginfo" ]; then
+  echo "error reading pfSense base version (pkg)"
+  exit 1
+fi
 ver="$(awk -F': ' '/Version/ { print $2 }' $pkginfo)"
 hw="$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)"
 arch="$(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-version)]"
@@ -43,7 +48,6 @@ if [ -n "$1" ]; then
 fi
 
 echo "this will take a few seconds..."
-pkg-static info pfSense-base >$pkginfo 2>/dev/null
 
 cat <<EOF >>$outfile
 # pf_verify checksum file
