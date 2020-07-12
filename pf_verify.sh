@@ -6,8 +6,33 @@
 #   sh pf_verify.sh [checksum_filename]
 #   without a filename, a checksum file will be generated for the running system
 
+ts=$(date '+%Y%m%d_%H%M%S')
+outfile=$HOME/pfv_${HOST}_${ts}.sha256
+workfile=pf_verify_tmp
+pkginfo=pkginfo_tmp
+cd /tmp || exit 1
+rm $workfile $outfile $pkginfo 2>/dev/null
+ver="$(awk -F': ' '/Version/ { print $2 }' $pkginfo)"
+hw="$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)"
+arch="$(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-version)]"
+
 if [ -n "$1" ]; then
   if [ -e "$1" ]; then
+    file_ver=$(awk '/^# version:/ { print $3 }' "$1")
+    file_hw=$(awk '/^# hardware:/ { print $3 }' "$1")
+    file_arch=$(awk '/^# architecture:/ { print $3 }' "$1")
+    if [ "$file_ver" != "$ver" ]; then
+      echo "checksum file was generated on a different pfSense version"
+      exit 1
+    fi
+    if [ "$file_hw" != "$hw" ]; then
+      echo "checksum file was generated on different hardware"
+      exit 1
+    fi
+    if [ "$file_arch" != "$arch" ]; then
+      echo "checksum file was generated on a different OS architecture"
+      exit 1
+    fi
     shasum -c "$1" | grep -v ': OK$'
     [ $? -eq 0 ] || echo "all files passed integrity check"
     exit
@@ -17,24 +42,15 @@ if [ -n "$1" ]; then
   fi
 fi
 
-ts=$(date '+%Y%m%d_%H%M%S')
-outfile=$HOME/pfv_${HOST}_${ts}.sha256
-workfile=pf_verify_tmp
-pkginfo=pkginfo_tmp
-cd /tmp || exit 1
-rm $workfile $outfile $pkginfo 2>/dev/null
-
 echo "this will take a few seconds..."
 pkg-static info pfSense-base >$pkginfo 2>/dev/null
-model="$(echo '<?php include("config.inc"); $p = system_identify_specific_platform(); $d = $p['descr']; $o = (($d) ? $d : 'unknown'); echo $o; ?>' | /usr/local/bin/php -q)"
-ver="$(awk -F': ' '/Version/ { print $2 }' $pkginfo)"
-arch="$(awk -F': ' '/Architecture/ { print $2 }' $pkginfo) [$(freebsd-version)]"
 
 cat <<EOF >>$outfile
 # pf_verify checksum file
 # hostname:      ${HOST}
 # generated on:  $(date)
-# version:       $ver [$model]
+# version:       $ver
+# hardware:      $hw
 # architecture:  $arch
 
 EOF
