@@ -2,7 +2,7 @@
 Verify pfSense base system files against known-good SHA256 hashes.
 
 ## Usage
-1. ssh into your target system.
+1. ssh or connect to the console of your system.
 
 2. choose option 8 (shell).
 
