@@ -63,8 +63,6 @@ echo "/etc/inc"
 find /etc/inc -type f -name "*.inc" -exec shasum -a256 {} + >$workfile 2>/dev/null
 echo "/boot"
 find /boot -type f ! \( -name "*.conf" -or -name "*.cache" -or -name "*.hints" -or -path "*/kernel.old/*" \) -exec shasum -a256 {} + >>$workfile 2>/dev/null
-echo "/usr/local/www"
-find /usr/local/www -type f ! -name "*.orig" -exec shasum -a256 {} + >>$workfile 2>/dev/null
 
 # generically-handled dirs
 while read -r DIR; do
@@ -81,6 +79,7 @@ done <<EOD
 /usr/local/lib
 /usr/local/libexec
 /usr/local/sbin
+/usr/local/www
 /usr/sbin
 /usr/share/firmware
 /usr/share/keys/pkg
@@ -90,6 +89,8 @@ EOD
 while read -r MATCH; do
   sed -i.bak -E "\|$MATCH|d" $workfile
 done <<EOS
+^.*\.orig$
+/boot/entropy
 /boot/menu.rc.sample
 /etc/inc/priv/cron.priv.inc
 /usr/lib/debug/
@@ -98,8 +99,22 @@ done <<EOS
 /usr/local/lib/perl5/
 /usr/local/lib/python[0-9.]+/
 /usr/local/sbin/iftop
+/usr/local/sbin/vnstatd
+/usr/local/www/acme/
+/usr/local/www/aws-sdk/
 /usr/local/www/csrf/csrf-secret.php
+/usr/local/www/haproxy/
 /usr/local/www/packages/
+/usr/local/www/status_traffic_totals.php
+/usr/local/www/system_patches.php
+/usr/local/www/system_patches_edit.php
+/usr/local/www/vnstat_fetch_json.php
+/usr/local/www/vpn_ipsec_profile.php
+/usr/local/www/vpn_openvpn_export.php
+/usr/local/www/vpn_openvpn_export_shared.php
+/usr/local/www/widgets/include/widget-haproxy.inc
+/usr/local/www/widgets/widgets/haproxy.widget.php
+/usr/local/www/wizards/
 EOS
 
 sort -k2 $workfile >>$outfile
