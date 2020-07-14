@@ -1,5 +1,5 @@
 # pf_verify
-Verify pfSense base system files against known-good SHA256 hashes.
+Verify pfSense base system files against known-good SHA256 hashes. May be useful after failed system upgrades, or any other time you need to confirm that your system files match the reference.
 
 ## Usage
 1. ssh or connect to the console of your system.
