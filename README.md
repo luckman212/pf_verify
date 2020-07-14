@@ -8,7 +8,7 @@ Verify pfSense base system files against known-good SHA256 hashes.
 
 3. paste in the following command:
 ```
-fetch -q https://raw.githubusercontent.com/luckman212/pf_verify/master/pf_verify.sh; chmod +x pf_verify.sh
+fetch -q https://raw.githubusercontent.com/luckman212/pf_verify/master/pf_verify.sh
 ```
 4. download a copy of the known-good (reference) checksums for your platform:
 ```
