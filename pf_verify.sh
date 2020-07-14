@@ -85,7 +85,7 @@ done <<EOD
 /usr/share/keys/pkg
 EOD
 
-# omits
+# exclusions
 while read -r MATCH; do
   sed -i.bak -E "\|$MATCH|d" $workfile
 done <<EOS
