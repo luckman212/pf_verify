@@ -89,10 +89,10 @@ EOD
 while read -r MATCH; do
   sed -i.bak -E "\|$MATCH|d" $workfile
 done <<EOS
-^.*\.orig$
 /boot/entropy
+/boot/firmware/
 /boot/menu.rc.sample
-/etc/inc/priv/cron.priv.inc
+/etc/inc/priv/
 /usr/lib/debug/
 /usr/local/bin/speedtest
 /usr/local/bin/speedtest-cli
@@ -105,6 +105,7 @@ done <<EOS
 /usr/local/www/csrf/csrf-secret.php
 /usr/local/www/haproxy/
 /usr/local/www/packages/
+/usr/local/www/shortcuts/
 /usr/local/www/status_traffic_totals.php
 /usr/local/www/system_patches.php
 /usr/local/www/system_patches_edit.php
@@ -115,6 +116,7 @@ done <<EOS
 /usr/local/www/widgets/include/widget-haproxy.inc
 /usr/local/www/widgets/widgets/haproxy.widget.php
 /usr/local/www/wizards/
+^.*\.orig$
 EOS
 
 sort -k2 $workfile >>$outfile
